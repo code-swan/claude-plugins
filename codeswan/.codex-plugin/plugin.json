@@ -1,0 +1,26 @@
+{
+  "name": "codeswan",
+  "version": "0.1.0",
+  "description": "Ask your organisation's software catalog: which services exist, who owns them, what depends on what.",
+  "author": {
+    "name": "CodeSwan",
+    "url": "https://code-swan.com"
+  },
+  "homepage": "https://code-swan.com",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "CodeSwan",
+        "shortDescription": "Your organisation's software catalog",
+        "longDescription": "Answers questions about this organisation's systems from a full scan of its repositories: which services exist and what they do, who owns them, how they depend on each other, and what breaks if one changes. Covers services whose source is not checked out locally, and connections that never appear as a matching string in any file.",
+        "developerName": "CodeSwan",
+        "category": "Engineering",
+        "capabilities": ["Interactive", "Read"],
+        "websiteURL": "https://code-swan.com",
+        "defaultPrompt": [
+          "Use CodeSwan to check which services exist, who owns them, and what depends on this code before making a change."
+        ]
+      }
+    }
+  }
+}

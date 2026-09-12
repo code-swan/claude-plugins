@@ -1,0 +1,15 @@
+{
+  "name": "codeswan",
+  "displayName": "CodeSwan",
+  "version": "0.1.0",
+  "description": "Ask your organisation's software catalog: which services exist, who owns them, what depends on what, and what breaks if you change it.",
+  "author": {
+    "name": "CodeSwan",
+    "url": "https://code-swan.com"
+  },
+  "homepage": "https://code-swan.com",
+  "license": "SEE LICENSE IN https://code-swan.com/terms",
+  "keywords": ["catalog", "architecture", "dependencies", "code-intelligence"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
