@@ -9,7 +9,12 @@
   },
   "homepage": "https://code-swan.com",
   "license": "SEE LICENSE IN https://code-swan.com/terms",
-  "keywords": ["catalog", "architecture", "dependencies", "code-intelligence"],
+  "keywords": [
+    "catalog",
+    "architecture",
+    "dependencies",
+    "code-intelligence"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }

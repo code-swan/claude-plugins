@@ -6,9 +6,18 @@ it.
 
 ## Install
 
+**Claude Code** — run these in the session:
+
 ```bash
 /plugin marketplace add code-swan/claude-plugins
 /plugin install codeswan@codeswan
+```
+
+**Codex** — run these in your terminal:
+
+```bash
+codex plugin marketplace add code-swan/claude-plugins
+codex plugin add codeswan@codeswan
 ```
 
 The first call opens a browser to sign in. No token goes in any config file.
