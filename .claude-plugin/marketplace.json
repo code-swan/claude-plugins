@@ -10,7 +10,7 @@
       "name": "codeswan",
       "source": "./codeswan",
       "description": "Ask your organisation's software catalog: which services exist, who owns them, what depends on what.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": { "name": "CodeSwan", "url": "https://code-swan.com" }
     }
   ]
