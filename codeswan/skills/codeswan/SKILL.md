@@ -20,15 +20,15 @@ Any question about **this organisation's** systems:
 
 ## Start here
 
-| You know                      | Call                                  |
-| ----------------------------- | ------------------------------------- |
-| roughly what it is called     | `search_components`                   |
-| only what it does             | `semantic_search`                     |
-| the component, want detail    | `get_component`                       |
-| the component, want its edges | `get_dependencies` / `get_dependents` |
-| a topic or queue name         | `get_topic`                           |
-| a function or symbol, not sure which service | `code_graph_find_symbol`   |
-| a function you will change, in code you cannot see | `code_graph_change_impact` |
+| You know                                           | Call                                  |
+| -------------------------------------------------- | ------------------------------------- |
+| roughly what it is called                          | `search_components`                   |
+| only what it does                                  | `semantic_search`                     |
+| the component, want detail                         | `get_component`                       |
+| the component, want its edges                      | `get_dependencies` / `get_dependents` |
+| a topic or queue name                              | `get_topic`                           |
+| a function or symbol, not sure which service       | `code_graph_find_symbol`              |
+| a function you will change, in code you cannot see | `code_graph_change_impact`            |
 
 **You do not need an id first.** Every component-scoped tool takes a name as well as an
 id, so "tell me about the payment service" is one call. Search only when you do not know
@@ -56,21 +56,22 @@ detail, the reasoning behind a piece of code, and specific library versions.
 
 ## Inside the code: the code graph (when enabled)
 
-When the organisation has the code graph switched on, seven `code_graph_*` tools answer
+When the organisation has the code graph switched on, eight `code_graph_*` tools answer
 **code-structure** questions for services you do not have checked out — who calls a
 function, where a symbol is defined, what a file defines, how a service's code is
 organised — from a graph of each repository built at scan time. Where code search finds
 _mentions_, these are exact call and import edges with file:line.
 
-| You want                                                  | Call                                                        |
-| --------------------------------------------------------- | ----------------------------------------------------------- |
-| which service defines a symbol                            | `code_graph_find_symbol(name)`                              |
-| what breaks if a function changes, in and across services | `code_graph_change_impact(component, function)`             |
-| who calls a function, or what it calls, N hops            | `code_graph_trace(component, function, direction?)`         |
-| symbols by name, path or kind inside a component          | `code_graph_search(component, namePattern?, filePattern?)`  |
-| how a service's code is organised, its hotspots           | `code_graph_architecture(component)`                        |
-| everything one file defines                               | `code_graph_outline(component, file)`                       |
-| a shape the others cannot express                         | `code_graph_query(component, cypher)` — read-only Cypher    |
+| You want                                                  | Call                                                       |
+| --------------------------------------------------------- | ---------------------------------------------------------- |
+| which service defines a symbol                            | `code_graph_find_symbol(name)`                             |
+| what breaks if a function changes, in and across services | `code_graph_change_impact(component, function)`            |
+| who calls a function, or what it calls, N hops            | `code_graph_trace(component, function, direction?)`        |
+| symbols by name, path or kind inside a component          | `code_graph_search(component, namePattern?, filePattern?)` |
+| how a service's code is organised, its hotspots           | `code_graph_architecture(component)`                       |
+| everything one file defines                               | `code_graph_outline(component, file)`                      |
+| a shape the others cannot express                         | `code_graph_query(component, cypher)` — read-only Cypher   |
+| the graph file itself, to open locally                    | `code_graph_export(component)` — a 10-minute `curl` link   |
 
 Rules of thumb:
 
@@ -83,6 +84,9 @@ Rules of thumb:
   `change_impact` before concluding anything.
 - **Paths are repository-relative with line ranges**, meant to be followed by
   `read_file(repository, path, startLine, endLine)`. The tools never return source.
+- **`code_graph_export` returns a link, not the file.** Run its `command` in the terminal to
+  save the graph; never try to read the file through a tool. Only for someone who wants the
+  file locally — asking the graph something never needs a download.
 - **The graph reflects the commit the last scan saw** (`commitSha` in every answer), not
   necessarily HEAD. Say so when it matters.
 - **A graph covers one repository.** A monorepo's services share it, and a caller that
