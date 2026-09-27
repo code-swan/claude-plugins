@@ -20,13 +20,19 @@ Any question about **this organisation's** systems:
 
 ## Start here
 
-| You know                      | Call                                  |
-| ----------------------------- | ------------------------------------- |
-| roughly what it is called     | `search_components`                   |
-| only what it does             | `semantic_search`                     |
-| the component, want detail    | `get_component`                       |
-| the component, want its edges | `get_dependencies` / `get_dependents` |
-| a topic or queue name         | `get_topic`                           |
+| You know                         | Call                                                   |
+| -------------------------------- | ------------------------------------------------------ |
+| roughly what it is called        | `search_components`                                    |
+| only what it does                | `semantic_search`                                      |
+| nothing yet — want the full list | `search_components` or `repository_search`, no `query` |
+| the component, want detail       | `get_component`                                        |
+| the component, want its edges    | `get_dependencies` / `get_dependents`                  |
+| a topic or queue name            | `get_topic`                                            |
+
+**To list everything, leave out `query`.** `search_components` and `repository_search` then
+return every component or repository, one page at a time: the reply carries `total`, and
+`nextSkip` when there is more to fetch. Do not call `get_service_graph` just to learn what
+exists — it returns every edge as well.
 
 **You do not need an id first.** Every component-scoped tool takes a name as well as an
 id, so "tell me about the payment service" is one call. Search only when you do not know
