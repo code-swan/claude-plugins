@@ -1,6 +1,6 @@
 ---
 name: codeswan
-description: Use when a question is about this organisation's own systems — which services exist, what they do, who owns them, what depends on what, or what breaks if something changes.
+description: Use when a question is about this organisation's own systems — which services exist, what they do, who owns them, what depends on what, or what breaks if something changes — down to the code, such as who calls a function or which code handles a route.
 ---
 
 # CodeSwan
@@ -28,6 +28,7 @@ Any question about **this organisation's** systems:
 | the component, want detail       | `get_component`                                        |
 | the component, want its edges    | `get_dependencies` / `get_dependents`                  |
 | a topic or queue name            | `get_topic`                                            |
+| the code — a function, a file, a route's handler | the `code_graph_*` tools (section below) |
 
 **To list everything, leave out `query`.** `search_components` and `repository_search` then
 return every component or repository, one page at a time: the reply carries `total`, and
@@ -55,8 +56,40 @@ not a consumer of it. On a real blast-radius question, an agent that answered fr
 catalog and then re-verified by grepping took 42 turns and returned five false
 positives; the catalog alone took 8 turns and got it right.
 
-Use code search and local files for what the catalog cannot answer: implementation
-detail, the reasoning behind a piece of code, and specific library versions.
+Use the code graph (below), then code search and local files, for what the catalog
+cannot answer: implementation detail, the reasoning behind a piece of code, and specific
+library versions.
+
+## The code itself (when the code graph is on)
+
+Each scanned repository also has a **code graph** — its definitions and the calls between
+them, read from the source at scan time. Use these tools for call and definition questions
+about code you do not have checked out: they beat text search, which finds mentions, not
+calls.
+
+| You want                                         | Call                       |
+| ------------------------------------------------ | -------------------------- |
+| where something is defined (repository unknown)  | `code_graph_find_symbol`   |
+| a definition by part of its name                 | `code_graph_search`        |
+| what a file defines                              | `code_graph_outline`       |
+| who calls X, or what X calls, hop by hop         | `code_graph_trace`         |
+| everything in the repository that depends on X   | `code_graph_change_impact` |
+| which function handles a route or a topic        | `code_graph_entry_points`  |
+| how a repository is organised                    | `code_graph_architecture`  |
+
+**Across services:** `code_graph_change_impact` and `code_graph_trace` (callees) take
+`acrossServices: true` — one service hop, through the routes and topics the catalog
+records. Each hop is marked certain or possible: report possible reach as possible, and a
+consumer listed without a code location as affected but not located. `joinCoverage` says
+how much of the chain could be followed — cite it.
+
+**Read every answer's `graph` block** — the commit, the coverage, whether the graph is
+whole — and carry its caveats into your answer. The graph's one gap, in every language: a
+call on a value whose type the source does not write is not recorded, so **a method's
+callers are a lower bound** — say so before concluding who calls something. A function
+listed under `passedAsValue` is handed to other code (a callback, a handler table), not
+unused. "No known callers" is a finding with stated blind spots, never proof that code is
+dead.
 
 ## When it cannot answer
 
@@ -67,5 +100,8 @@ Say so and stop — do not silently fall back to guessing from file names.
   will genuinely not have it.
 - **Tools missing entirely** — the connection is not authorised. The first call opens a
   browser sign-in; report that rather than working around it.
+- **Only the `code_graph_*` tools are missing** — the code graph is off for this
+  organisation; that is a setting, not an error. Answer from the catalog, and say that
+  code-level detail needs the code graph turned on.
 - **An empty result is an answer.** "Nothing depends on this" is a finding. Do not
   re-run the question as a code search to get a more satisfying-looking one.
