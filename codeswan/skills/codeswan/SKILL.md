@@ -22,16 +22,22 @@ Any question about **this organisation's** systems:
 
 | You know                         | Call                                                   |
 | -------------------------------- | ------------------------------------------------------ |
-| roughly what it is called        | `search_components`                                    |
-| only what it does                | `semantic_search`                                      |
-| nothing yet — want the full list | `search_components` or `repository_search`, no `query` |
-| the component, want detail       | `get_component`                                        |
+| roughly what it is called        | `search` (`kinds: ["component"]` to stay on services)  |
+| only what it does                | `search` — it ranks by meaning                         |
+| nothing yet — want the full list | `search` or `repository_search`, no `query`            |
+| the component, want detail       | `get_component` — its business `features` included; `includeDiagrams: true` adds diagram source |
 | the component, want its edges    | `get_dependencies` / `get_dependents`                  |
-| a topic or queue name            | `get_topic`                                            |
+| a topic, flag, feature or endpoint by name/key | `get_entity` with its `kind` (`topic`, `feature_flag`, `feature`, `api`) |
 | the code — a function, a file, a route's handler | the `code_graph_*` tools (section below) |
 
-**To list everything, leave out `query`.** `search_components` and `repository_search` then
-return every component or repository, one page at a time: the reply carries `total`, and
+**`search` finds every kind of thing** — components, APIs, data stores, topics and queues,
+business features, feature flags — and `kinds` narrows it. Use it to FIND something; when you
+already hold a name, key or topic, call the lookup tool for it directly (`get_component`, or
+`get_entity` — which services consume a topic is `get_entity` with `kind: "topic"`, not
+`get_dependents`).
+
+**To list everything, leave out `query`.** `search` and `repository_search` then
+return every component (or API, topic, flag … per `kinds`) or repository, one page at a time: the reply carries `total`, and
 `nextSkip` when there is more to fetch. Do not call `get_service_graph` just to learn what
 exists — it returns every edge as well.
 
@@ -69,15 +75,13 @@ calls.
 
 | You want                                         | Call                       |
 | ------------------------------------------------ | -------------------------- |
-| where something is defined (repository unknown)  | `code_graph_find_symbol`   |
-| a definition by part of its name                 | `code_graph_search`        |
-| what a file defines                              | `code_graph_outline`       |
+| where something is defined (or by part of its name in one repository) | `code_graph_symbols` |
 | who calls X, or what X calls, hop by hop         | `code_graph_trace`         |
-| everything in the repository that depends on X   | `code_graph_change_impact` |
+| what changing X would touch                      | `code_graph_trace` with `mode: "impact"` — ask it directly |
 | which function handles a route or a topic        | `code_graph_entry_points`  |
-| how a repository is organised                    | `code_graph_architecture`  |
+| what a file defines (`path`), how a repository is organised (no `path`) | `code_graph_structure` |
 
-**Across services:** `code_graph_change_impact` and `code_graph_trace` (callees) take
+**Across services:** `code_graph_trace` (mode `impact`, or callees) takes
 `acrossServices: true` — one service hop, through the routes and topics the catalog
 records. Each hop is marked certain or possible: report possible reach as possible, and a
 consumer listed without a code location as affected but not located. `joinCoverage` says
@@ -95,8 +99,8 @@ dead.
 
 Say so and stop — do not silently fall back to guessing from file names.
 
-- **Nothing found for a name** — try `semantic_search` with what it _does_, or
-  `search_components` with a shorter term. A catalog that has never scanned the repo
+- **Nothing found for a name** — `search` again with what it _does_, or with a
+  shorter term. A catalog that has never scanned the repo
   will genuinely not have it.
 - **Tools missing entirely** — the connection is not authorised. The first call opens a
   browser sign-in; report that rather than working around it.
