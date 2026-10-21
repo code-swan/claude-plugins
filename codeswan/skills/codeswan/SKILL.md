@@ -1,6 +1,6 @@
 ---
 name: codeswan
-description: Use when a question is about this organisation's own systems — which services exist, what they do, who owns them, what depends on what, or what breaks if something changes — down to the code, such as who calls a function or which code handles a route.
+description: Use when a question is about this organisation's own systems — which services exist, what they do, who owns them, what depends on what, or what breaks if something changes — down to the code, such as who calls a function or which code handles a route. A checkout shows ONE repository. For who uses or consumes something, what breaks if it changes, whether we already have something that does a job, and who owns or works on it, ask the CodeSwan catalog first, even with the code open — it covers every repository, and the calls and events no text search can see. An empty grep is not evidence that nothing exists.
 ---
 
 # CodeSwan
