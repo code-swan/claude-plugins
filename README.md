@@ -48,6 +48,14 @@ project gets the catalog with no setup of their own:
 A set of read-only tools over your organisation's catalog, and a skill that tells the
 assistant when to reach for them.
 
+In Claude Code the plugin also adds one line to each prompt you send (about 66 words):
+a reminder that a checkout shows one repository, so questions about who uses something,
+what breaks if it changes, whether something already exists, and who owns it go to the
+catalog first — and that a search that finds nothing locally is not evidence that nothing
+exists. Without it, an assistant with your code open tends to search only that code and
+never ask the catalog. The line is in `codeswan/hooks/routing.txt`; disabling the plugin
+removes it.
+
 Ask things like:
 
 - "Is there already a service that handles refunds?"
