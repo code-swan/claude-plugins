@@ -45,22 +45,35 @@ exists — it returns every edge as well.
 id, so "tell me about the payment service" is one call. Search only when you do not know
 _which_ component you want — never to turn a name you already have into an id.
 
-## Trust the answers
+## What to trust, and what to check
 
-The catalog is authoritative for architecture, dependencies and ownership. It covers
+The catalog is the first stop for architecture, dependencies and ownership. It covers
 services whose source is not checked out locally, and connections that never appear as a
 matching string in any file — a gRPC or HTTP call, or an event published to a topic
 another service subscribes to.
 
-`get_dependents` returns the **complete** consumer set: API callers, event subscribers,
-and components that declare the dependency.
+`get_dependents` lists API callers, event subscribers, and components that declare the
+dependency.
 
-**Do not double-check a catalog answer by searching the source code.** It costs several
-times more and is less accurate, because code search finds _mentions_ rather than
-dependencies — a service that merely names another in a log line or a config comment is
-not a consumer of it. On a real blast-radius question, an agent that answered from the
-catalog and then re-verified by grepping took 42 turns and returned five false
-positives; the catalog alone took 8 turns and got it right.
+**Do not rebuild that list by searching the source code.** It costs several times more
+and is less accurate, because code search finds _mentions_ rather than dependencies — a
+service that merely names another in a log line or a config comment is not a consumer of
+it. On a real blast-radius question, an agent that answered from the catalog and then
+re-verified by grepping took 42 turns and returned five false positives; the catalog
+alone took 8 turns and got it right.
+
+**A catalog hit narrows where to look; it is not proof that nobody else is affected,** and
+a route on an edge is matched, not proven exact. For a rename, a contract change, or a thin
+or empty result, verify before you narrow scope: open each consumer's `callSite` (the
+`calls` in `get_dependents`) or ask the owning team. A value that lives in code — a status
+or enum value, a constant — has no consumer list here: search the code of every repository
+for it, or ask every team that may use it.
+
+**The catalog knows structure, not behaviour.** It does not hold values inside code (status
+and enum values, constants, formatters, config literals), the reasoning behind a piece of
+code, or exact dependency versions. To find where a wrong value or behaviour comes from,
+take the call chain from the catalog, then read the code at each hop — do not pick the
+location from structure alone.
 
 Use the code graph (below), then code search and local files, for what the catalog
 cannot answer: implementation detail, the reasoning behind a piece of code, and specific
@@ -107,5 +120,7 @@ Say so and stop — do not silently fall back to guessing from file names.
 - **Only the `code_graph_*` tools are missing** — the code graph is off for this
   organisation; that is a setting, not an error. Answer from the catalog, and say that
   code-level detail needs the code graph turned on.
-- **An empty result is an answer.** "Nothing depends on this" is a finding. Do not
-  re-run the question as a code search to get a more satisfying-looking one.
+- **An empty result is an answer.** "Nothing depends on this" is a finding: report it
+  together with what the catalog cannot see (above). Before a rename or a contract change,
+  verify it as described there. For a plain question, do not re-run it as a code search to
+  get a more satisfying-looking one.
