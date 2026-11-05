@@ -121,6 +121,6 @@ Say so and stop — do not silently fall back to guessing from file names.
   organisation; that is a setting, not an error. Answer from the catalog, and say that
   code-level detail needs the code graph turned on.
 - **An empty result is an answer.** "Nothing depends on this" is a finding: report it
-  together with what the catalog cannot see (above). Before a rename or a contract change,
-  verify it as described there. For a plain question, do not re-run it as a code search to
-  get a more satisfying-looking one.
+  together with what the catalog cannot see (above), and verify it as described there
+  before you act on it. For a plain question, do not re-run it as a code search to get a
+  more satisfying-looking one.
