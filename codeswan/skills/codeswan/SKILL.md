@@ -27,6 +27,7 @@ Any question about **this organisation's** systems:
 | nothing yet — want the full list | `search` or `repository_search`, no `query`            |
 | the component, want detail       | `get_component` — its business `features` included; `includeDiagrams: true` adds diagram source |
 | the component, want its edges    | `get_dependencies` / `get_dependents`                  |
+| the full chain behind a request, or everything X eventually reaches | `get_dependencies` with `depth: 10`, once (`get_dependents` the same, the other way) |
 | a topic, flag, feature or endpoint by name/key | `get_entity` with its `kind` (`topic`, `feature_flag`, `feature`, `api`) |
 | the code — a function, a file, a route's handler | the `code_graph_*` tools (section below) |
 
@@ -55,7 +56,9 @@ another service subscribes to.
 `get_dependents` lists API callers, event subscribers, and components that declare the
 dependency.
 
-**Do not rebuild that list by searching the source code.** It costs several times more
+**Do not rebuild a consumer list by searching the source code.** (This is about listing who
+calls or depends on something. Planning a change or finding a bug is different — see the next
+section.) It costs several times more
 and is less accurate, because code search finds _mentions_ rather than dependencies — a
 service that merely names another in a log line or a config comment is not a consumer of
 it. On a real blast-radius question, an agent that answered from the catalog and then
@@ -78,6 +81,44 @@ location from structure alone.
 Use the code graph (below), then code search and local files, for what the catalog
 cannot answer: implementation detail, the reasoning behind a piece of code, and specific
 library versions.
+
+## A full chain: one call, not hop by hop
+
+Request chains in a real system often run past three hops. `get_dependencies` walks the
+upstreams of the upstreams on the server: pass `depth: 10` once. The walk stops by itself when a
+level adds nothing, so a high value costs nothing on a short chain, and you cannot miss a branch
+the way you do by following hops yourself. `get_dependents` takes the same `depth` for the
+reverse direction.
+
+- Entries carry the `hop` they were reached at. For "what calls what over HTTP" keep the `api`
+  entries and, past hop 1, only those whose `viaPath` is all `api`: an `event` entry is a
+  subscription through a topic, not a call.
+- `calls` are listed at hop 1 only. To see where a deeper call is made, ask for that service's
+  own `get_dependencies`.
+- If `truncated` is true the walk stopped at the cap: call again on the entries marked
+  `moreUpstreams`. Never report a truncated walk as the whole chain. (`get_dependents` has no
+  `truncated` flag: if its deepest level is still full, call it again from those entries.)
+
+## Planning a change, or finding where a bug lives
+
+"Which repositories must change?" and "where does this wrong value come from?" are not "who
+calls X?" questions. The catalog gives you the call chain and the owners, not the answer.
+Before you name any repository:
+
+1. **Take the chain from the catalog** — as above.
+2. **Search every repository for the literal itself** with `code_smart_search` (a checkout
+   shows only one repository; this searches the default branch across the org's repositories)
+   — the route path, the field name, the topic, the status value — not only the repositories on
+   the chain. Contract and spec repositories, deploy and gateway config, and frontends mention a
+   route, topic or field without calling or subscribing to it, so no catalog edge points at them.
+3. **Open the code before you name a repository.** A service the chain points at is where to
+   look, not proof the fault is there: a wrong value is often made in the service it calls.
+4. **Do not read "nobody calls this route" off the catalog.** A route on an edge is matched, not
+   proven exact, so the callers of a service may not show the route you are changing. Open each
+   caller's `callSite` before you decide nothing else is affected.
+
+A plan that names a repository you did not open, or stops at what the catalog listed, is the
+usual way this goes wrong.
 
 ## The code itself (when the code graph is on)
 
