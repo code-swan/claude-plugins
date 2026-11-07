@@ -96,7 +96,8 @@ reverse direction.
 - `calls` are listed at hop 1 only. To see where a deeper call is made, ask for that service's
   own `get_dependencies`.
 - If `truncated` is true the walk stopped at the cap: call again on the entries marked
-  `moreUpstreams`. Never report a truncated walk as the whole chain.
+  `moreUpstreams`. Never report a truncated walk as the whole chain. (`get_dependents` has no
+  `truncated` flag: if its deepest level is still full, call it again from those entries.)
 
 ## Planning a change, or finding where a bug lives
 
@@ -105,10 +106,11 @@ calls X?" questions. The catalog gives you the call chain and the owners, not th
 Before you name any repository:
 
 1. **Take the chain from the catalog** — as above.
-2. **Search every repository for the literal itself** — the route path, the field name, the
-   topic, the status value — not only the repositories on the chain. Contract and spec
-   repositories, deploy and gateway config, and frontends mention a route, topic or field
-   without calling or subscribing to it, so no catalog edge points at them.
+2. **Search every repository for the literal itself** with `code_smart_search` (a checkout
+   shows only one repository; this searches the default branch across the org's repositories)
+   — the route path, the field name, the topic, the status value — not only the repositories on
+   the chain. Contract and spec repositories, deploy and gateway config, and frontends mention a
+   route, topic or field without calling or subscribing to it, so no catalog edge points at them.
 3. **Open the code before you name a repository.** A service the chain points at is where to
    look, not proof the fault is there: a wrong value is often made in the service it calls.
 4. **Do not read "nobody calls this route" off the catalog.** A route on an edge is matched, not
