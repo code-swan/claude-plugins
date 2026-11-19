@@ -113,12 +113,31 @@ Before you name any repository:
    route, topic or field without calling or subscribing to it, so no catalog edge points at them.
 3. **Open the code before you name a repository.** A service the chain points at is where to
    look, not proof the fault is there: a wrong value is often made in the service it calls.
+   To open several files of one repository, call `read_files` (up to 40 paths, one call)
+   rather than `read_file` once per file.
 4. **Do not read "nobody calls this route" off the catalog.** A route on an edge is matched, not
    proven exact, so the callers of a service may not show the route you are changing. Open each
    caller's `callSite` before you decide nothing else is affected.
 
 A plan that names a repository you did not open, or stops at what the catalog listed, is the
 usual way this goes wrong.
+
+## Which services really use a function or helper
+
+"Which services call `X` at runtime?" is a code question: the catalog holds no calls inside
+code, and a component that _declares_ a dependency on a library does not necessarily call any
+given function of it. If the code graph is on, ask `code_graph_trace` for the callers first and
+use `code_smart_search` for what it misses. Otherwise find candidates with `code_smart_search`.
+Then check each one before it goes in your answer:
+
+- **Open the file and see the call.** An import, a declaration, a comment, or a name in
+  config is a mention, not a use. A hit in the library's own repository (its definition and
+  its tests) is not a user either.
+- **If every candidate fails that check, the answer is "none found".** Say what you searched
+  (default branches only; a call written another way can be missed). Do not name the closest
+  candidate just to have something to list.
+- **A file you could not open is not confirmed.** Say that service was not verified; do not
+  list it as a user.
 
 ## The code itself (when the code graph is on)
 
